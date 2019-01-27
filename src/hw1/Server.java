@@ -17,8 +17,11 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
+import java.util.ArrayList;
 
 public class Server {
+	
+	public static ArrayList<ListClientHandler> clients = new ArrayList<ListClientHandler>();
 
 	public static void main(String[] args) throws IOException {
 
@@ -46,7 +49,10 @@ public class Server {
 
 				// 2.2 SPAWN A THREAD TO HANDLE CLIENT REQUEST
 				System.out.println("Server got connected to a client" + ++clientNum);
-				Thread t = new Thread(new ListClientHandler(clientSocket, clientNum));
+				
+				ListClientHandler client = new ListClientHandler(clientSocket, clientNum);
+				Thread t = new Thread(client);
+				clients.add(client);
 				t.start();
 
 			} catch (IOException e) {
@@ -91,15 +97,23 @@ class ListClientHandler implements Runnable {
 			out.flush(); // force the output
 
 			// 3. KEEP LISTENING AND RESPONDING TO CLIENT REQUESTS
-			int count = 1;
-			while (count <= 3) {
+			//int count = 1;
+			while (true) {
 				System.out.println("Server - waiting to read");
 				String s = in.nextLine();
 				handleRequest(s);
-				count++;
+				
+				for (ListClientHandler c : Server.clients)
+				{
+					if (c.num == this.num)
+						continue;
+					
+					c.dispatch(s, this.num);
+				}
+				//count++;
 			}
-			out.println("exit done with wishes");
-			out.flush();
+			//out.println("exit done with wishes");
+			//out.flush();
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -110,6 +124,25 @@ class ListClientHandler implements Runnable {
 
 	void handleRequest(String s) {
 		System.out.println("server side: " + s);
+	}
+	
+	void dispatch(String message, int num) {
+		Scanner in;
+		PrintWriter out;
+		
+		try {
+			// 1. GET SOCKET IN/OUT STREAMS
+			in = new Scanner(new BufferedInputStream(s.getInputStream()));
+			out = new PrintWriter(new BufferedOutputStream(s.getOutputStream()));
+
+			// 2. PRINT SOME STUFF TO THE CLIENT
+			out.println("print " + num + ": " + message);
+			out.flush(); // force the output
+
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 } // end of class ClientHandler

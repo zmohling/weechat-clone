@@ -13,12 +13,12 @@ public class Client {
 
 	Socket serverSocket;
 	String serverHostName = "localhost";
-	int serverPortNumber = 4444;
+	int serverPortNumber = 2000;
 	ServerListener sl;
-	boolean closed = false;
+	String name = null;
 
 	Client() {
-		// 1. CONNECT TO THE SERVER
+		// Connect to the server
 		try {
 			serverSocket = new Socket(serverHostName, serverPortNumber);
 		} catch (UnknownHostException e) {
@@ -27,8 +27,7 @@ public class Client {
 			e.printStackTrace();
 		}
 
-		// 2. SPAWN A LISTENER FOR THE SERVER. THIS WILL KEEP RUNNING
-		// when a message is received, an appropriate method is called
+		// Spawn server listener
 		sl = new ServerListener(this, serverSocket);
 		new Thread(sl).start();
 
@@ -37,55 +36,43 @@ public class Client {
 		try {
 			out = new PrintStream(serverSocket.getOutputStream());
 			consoleInput = new BufferedReader(new InputStreamReader(System.in));
-			/*
-			 * // 3. SEND THREE WISHES TO SERVER out.println("wish 1:  one million bucks ");
-			 * out.flush(); // force the output out.println("wish 2: uh oh! "); out.flush();
-			 * // force the output out.println("wish 3: get rid of the bucks ");
-			 * out.flush(); // force the output
-			 */
 
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		if (out != null && consoleInput != null) {
-			try {
-				while (true) {
-					out.println(consoleInput.readLine().trim());
-					out.flush();
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			// Input listener
+			while (true) {
+				out.println(consoleInput.readLine().trim());
+				out.flush();
 			}
 
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-
 	}
 
 	public void handleMessage(String cmd, String s) {
 		switch (cmd) {
+		case "welcome":
+			System.out.print(s);
+			break;
 		case "print":
-			System.out.println("client side: " + s);
+			System.out.println(s);
 			break;
 		case "exit":
 			System.exit(-1);
 			break;
 		default:
-			System.out.println("client side: unknown command received:" + cmd);
+			System.out.println("Unknown command received:" + cmd);
 		}
 	}
 
 	public static void main(String[] args) {
+		@SuppressWarnings("unused")
 		Client lc = new Client();
-	} // end of main method
-
-} // end of Client
+	}
+}
 
 class ServerListener implements Runnable {
 	Client lc;
-	Scanner in; // this is used to read which is a blocking call
+	Scanner in;
 
 	ServerListener(Client lc, Socket s) {
 		try {
@@ -98,8 +85,7 @@ class ServerListener implements Runnable {
 
 	@Override
 	public void run() {
-		while (true) { // run forever
-			System.out.println("Client - waiting to read");
+		while (true) {
 			String cmd = in.next();
 			String s = in.nextLine();
 			lc.handleMessage(cmd, s);

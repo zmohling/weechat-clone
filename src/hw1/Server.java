@@ -12,8 +12,8 @@ import java.util.ArrayList;
 
 public class Server {
 
-	public static ArrayList<ListClientHandler> unconfirmedClients = new ArrayList<ListClientHandler>();
-	public static ArrayList<ListClientHandler> clients = new ArrayList<ListClientHandler>();
+	public static ArrayList<ClientHandler> unconfirmedClients = new ArrayList<ClientHandler>();
+	public static ArrayList<ClientHandler> clients = new ArrayList<ClientHandler>();
 
 	public static void main(String[] args) throws IOException {
 
@@ -38,7 +38,7 @@ public class Server {
 				// Spawn thread for client handler
 				System.out.println("New connection to: client " + ++clientNum);
 				
-				ListClientHandler client = new ListClientHandler(clientSocket, clientNum);
+				ClientHandler client = new ClientHandler(clientSocket, clientNum);
 				Thread t = new Thread(client);
 				unconfirmedClients.add(client);
 				
@@ -52,12 +52,12 @@ public class Server {
 	}
 }
 
-class ListClientHandler implements Runnable {
+class ClientHandler implements Runnable {
 	Socket s;
 	int identifier;
 	String name;
 
-	ListClientHandler(Socket s, int n) {
+	ClientHandler(Socket s, int n) {
 		this.s = s;
 		identifier = n;
 	}
@@ -76,9 +76,9 @@ class ListClientHandler implements Runnable {
 			while (true) {
 				String s = in.nextLine();
 				log(s);
-
+				
 				// Dispatch to every other client if message is received
-				for (ListClientHandler c : Server.clients) {
+				for (ClientHandler c : Server.clients) {
 					if (c.identifier == this.identifier)
 						continue;
 
@@ -96,7 +96,7 @@ class ListClientHandler implements Runnable {
 		out.flush();
 		name = in.nextLine().trim();
 
-		for (ListClientHandler c : Server.clients) {
+		for (ClientHandler c : Server.clients) {
 			if (c.identifier == this.identifier)
 				continue;
 

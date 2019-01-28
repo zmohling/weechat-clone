@@ -56,9 +56,6 @@ public class Client {
 		case "print":
 			System.out.println(s);
 			break;
-		case "exit":
-			System.exit(-1);
-			break;
 		default:
 			System.out.println("Unknown command received:" + cmd);
 		}

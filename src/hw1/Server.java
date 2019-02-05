@@ -21,10 +21,10 @@ public class Server {
 		int clientNum = 0;
 
 		try {
-			serverSocket = new ServerSocket(2000);
+			serverSocket = new ServerSocket(4400);
 			System.out.println(serverSocket);
 		} catch (IOException e) {
-			System.out.println("Could not listen on port: 2000");
+			System.out.println("Could not listen on port: 4400");
 			System.exit(-1);
 		}
 
@@ -53,12 +53,12 @@ public class Server {
 }
 
 class ClientHandler implements Runnable {
-	Socket s;
+	Socket socket;
 	int identifier;
 	String name;
 
 	ClientHandler(Socket s, int n) {
-		this.s = s;
+		this.socket = s;
 		identifier = n;
 	}
 
@@ -67,22 +67,45 @@ class ClientHandler implements Runnable {
 		PrintWriter out;
 
 		try {
-			in = new Scanner(new BufferedInputStream(s.getInputStream()));
-			out = new PrintWriter(new BufferedOutputStream(s.getOutputStream()));
+			in = new Scanner(new BufferedInputStream(socket.getInputStream()));
+			out = new PrintWriter(new BufferedOutputStream(socket.getOutputStream()));
 
 			joinSession(in, out);
 
 			// Listener for client's messages
-			while (true) {
+			while (!socket.isClosed()) {
 				String s = in.nextLine();
-				log(s);
+				
+				
+				if (s.substring(0, 1).equals(":"))
+				{
+					String cmd = (s.length() > 1) ? s.substring(1, 2) : "";
+					switch(cmd)
+					{
+						case "q":
+							this.socket.close();
+							s = "    > " + name + " has left the session! <    ";
+							
+							Server.clients.remove(this);
+							
+							System.out.println("Closed connection to: client " + identifier);
+							break;
+							
+						default:
+							System.out.println("Unknown command: cmd");
+							break;
+					}
+				} else {
+					log(s);
+					s = "[" + this.name + "]: " + s;
+				}
 				
 				// Dispatch to every other client if message is received
 				for (ClientHandler c : Server.clients) {
 					if (c.identifier == this.identifier)
 						continue;
 
-					c.dispatch(name + ": " + s);
+					c.dispatch(s);
 				}
 			}
 		} catch (IOException e) {
@@ -100,7 +123,7 @@ class ClientHandler implements Runnable {
 			if (c.identifier == this.identifier)
 				continue;
 
-			c.dispatch("> " + name + " has joined the session!");
+			c.dispatch("    > " + name + " has joined the session! <    ");
 		}
 		
 		Server.unconfirmedClients.remove(this);
@@ -123,8 +146,8 @@ class ClientHandler implements Runnable {
 		PrintWriter out;
 
 		try {
-			in = new Scanner(new BufferedInputStream(s.getInputStream()));
-			out = new PrintWriter(new BufferedOutputStream(s.getOutputStream()));
+			in = new Scanner(new BufferedInputStream(socket.getInputStream()));
+			out = new PrintWriter(new BufferedOutputStream(socket.getOutputStream()));
 
 			this.send(in, out, message);
 

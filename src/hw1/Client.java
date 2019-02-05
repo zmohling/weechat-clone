@@ -21,10 +21,10 @@ public class Client {
 	Client() {
 		
 		int HEADER_LINES = 5;
-		String CONSOLE_LINES = System.getenv("$LINES");
-		String CONSOLE_COLUMNS = System.getenv("COLUMNS");
+		int CONSOLE_LINES = Integer.parseInt(System.getenv("LINES"));
 		
-		System.out.print(CONSOLE_LINES);
+		for (int i = HEADER_LINES; i <= CONSOLE_LINES; i++)
+			System.out.println();
 		
 		// Connect to the server
 		try {

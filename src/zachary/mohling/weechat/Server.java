@@ -88,7 +88,7 @@ class ClientHandler implements Runnable {
 							
 							this.socket.close();
 							
-							s = "    > " + name + " has left the session! <    ";
+							s = ConsoleColors.CYAN + name + " has left the server." + ConsoleColors.RESET;
 							Server.clients.remove(this);
 							System.out.println("Closed connection to: client " + identifier);
 							break;
@@ -117,17 +117,12 @@ class ClientHandler implements Runnable {
 	
 	// Confirmation prompt for name
 	private void joinSession(Scanner in, PrintWriter out) {
-		out.println("print > Enter your name: ");
-		out.flush();
 		name = in.nextLine().trim();
 
-		for (ClientHandler c : Server.clients) {
-			if (c.identifier == this.identifier)
-			{
-				c.dispatch("    > Welcome, " + name + "! <    ");
-			}
 
-			c.dispatch("    > " + name + " has joined the session! <    ");
+		
+		for (ClientHandler c : Server.clients) {
+			c.dispatch(ConsoleColors.CYAN + name + " has joined the server." + ConsoleColors.RESET);
 		}
 		
 		Server.unconfirmedClients.remove(this);

@@ -23,7 +23,7 @@ public class Client
 	String name = null;
 
 	ArrayList<String> servers = new ArrayList<String>();
-	int margin = 11;
+	int margin = 0;
 
 	PrintStream out;
 	BufferedReader consoleInput;
@@ -34,17 +34,33 @@ public class Client
 
 	Client()
 	{
+		servers.add("example.com");
+		servers.add("foo.org");
+		servers.add("bar.biz");
+		
+		for (String s : servers) {
+			if((s.length() + 3) > margin)
+				margin = s.length() + 4;
+		}
 
-		for (int i = 0; i < CONSOLE_LINES - 1; i++)
+		for (int i = 0; i < CONSOLE_LINES; i++)
+		{
 			System.out.println();
+		}
 
-		println("  _______ _____ ______    _______   _________  ________");
-		println(" / ___/ // / _ /_  __/___/ ___/ /  /  _/ __/ |/ /_  __/");
-		println("/ /__/ _  / __ |/ / /___/ /__/ /___/ // _//    / / /   ");
-		println("\\___/_//_/_/ |_/_/      \\___/____/___/___/_/|_/ /_/    ");
-		println("");
-
-		servers.add("weechat");
+		println(getCurrentTimeStamp() + " | " + "\t              (C) 2018 Zachary Mohling");
+		println(getCurrentTimeStamp() + " | " + "\t  _______ _____ ______    _______   _________  ________");
+		println(getCurrentTimeStamp() + " | " + "\t / ___/ // / _ /_  __/___/ ___/ /  /  _/ __/ |/ /_  __/");
+		println(getCurrentTimeStamp() + " | " + "\t/ /__/ _  / __ |/ / /___/ /__/ /___/ // _//    / / /   ");
+		println(getCurrentTimeStamp() + " | " + "\t\\___/_//_/_/ |_/_/      \\___/____/___/___/_/|_/ /_/    ");
+		println(getCurrentTimeStamp() + " | ");
+		println(getCurrentTimeStamp() + " | " + "\tWelcome to the chat client. Quit with the command ':q'.");
+		println(getCurrentTimeStamp() + " | " + "\t          Enter your name to start chatting.           ");
+		println(getCurrentTimeStamp() + " | ");
+		println(getCurrentTimeStamp() + " | ");
+		println(getCurrentTimeStamp() + " | ");
+		println(getCurrentTimeStamp() + " | ");
+		pushToFeed("");
 
 		// Connect to the server
 		try
@@ -66,7 +82,7 @@ public class Client
 		{
 			out = new PrintStream(serverSocket.getOutputStream());
 			consoleInput = new BufferedReader(new InputStreamReader(System.in));
-
+			
 			// Input listener
 			while (true)
 			{
@@ -80,19 +96,20 @@ public class Client
 						
 						out.println(message);
 						out.flush();
+
+						message = ConsoleColors.CYAN + name + " has joined the server." + ConsoleColors.RESET;
+					} else {
 						
-						message = "    > Welcome, " + name + "! <    ";
-					} else 
-					{
 						out.println(message);
 						out.flush();
+						
+						message = "[" + this.name + "]: " + message; 
+
 					}
 				} else
 				{
-					message = "Error: Cannot send empty messages.";
+					message = ConsoleColors.WHITE_BRIGHT + "Error: Cannot send empty messages." + ConsoleColors.RESET;
 				}
-
-				System.out.print(String.format("\033[%dA", 1)); // Move up
 
 				pushToFeed(message);
 			}
@@ -113,19 +130,18 @@ public class Client
 			break;
 
 		case "print":
+			println(" ");
 			pushToFeed(s);
 			break;
 
 		case "quit":
-			System.out.print(String.format("\033[%dA", 1)); // Move up
 			pushToFeed("Disconnecting from the server...");
 
 			try
 			{
-				TimeUnit.SECONDS.sleep(0);
+				TimeUnit.SECONDS.sleep(2);
 			} catch (InterruptedException e)
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
@@ -140,7 +156,7 @@ public class Client
 
 	private void println(String message)
 	{
-		System.out.print("\033[" + margin + "C" + message + "\n");
+		System.out.print("\033[" + (margin + 1) + "C" + message + "\n");
 	}
 
 	private void update()
@@ -149,7 +165,21 @@ public class Client
 
 		for (int i = 0; i < CONSOLE_LINES; i++)
 		{
-			System.out.print(new String(new char[servers.get(0).length() + 2]).replace("\0", " ") + "│");
+			if (i < servers.size())
+			{
+				if (i == 0)
+				{
+					System.out.print(ConsoleColors.CYAN_BACKGROUND + (i + 1) + ". " + servers.get(i) + new String(new char[(margin - 1) - (servers.get(i).length() + 3)]).replace("\0", " ") + ConsoleColors.RESET + "│");
+					
+				} else
+				{
+					System.out.print((i + 1) + ". " + servers.get(i) + new String(new char[(margin - 1) - (servers.get(i).length() + 3)]).replace("\0", " ") + "│");
+				}
+			} else {
+				System.out.print(new String(new char[margin - 1]).replace("\0", " ") + "│");
+			}
+			
+			
 
 			if (i != CONSOLE_LINES - 1)
 				System.out.print("\n");
@@ -161,27 +191,28 @@ public class Client
 	}
 
 	private void pushToFeed(String message)
-	{        
-        message = getCurrentTimeStamp() + " | " + message;
-        
-		System.out.print("\r\033[2K"); // Erase line content
+	{
+		message = getCurrentTimeStamp() + " | " + message;
+
+		System.out.print(String.format("\033[A")); // Move up
+		System.out.print(ConsoleColors.RESET + "\033[2K"); // Erase line content
 		System.out.print(
-				ConsoleColors.RESET + ("\033[" + (10) + "C") + message
-						+ new String(new char[CONSOLE_COLS - message.length() - margin + 1]).replace("\0", " ")
+				("\033[" + (CONSOLE_LINES - 1) + ";" + (margin + 2) + "f") + ConsoleColors.RESET + message 
 		);
 		System.out.print(
 				ConsoleColors.RESET
-						+ "\n" + ConsoleColors.CYAN_BACKGROUND + ConsoleColors.WHITE_BOLD + ("\033[" + (10)
+						+ "\n" + ConsoleColors.CYAN_BACKGROUND + ConsoleColors.WHITE_BOLD + ("\033[" + (margin)
 								+ "C")
 						+ "> " + "\033[s" + new String(new char[CONSOLE_COLS - 2 - margin]).replace("\0", " ") + "\033[u"
 		);
 		update();
 	}
-	
-	public String getCurrentTimeStamp() {
-	    return new SimpleDateFormat("HH:mm:ss").format(new Date());
+
+	public String getCurrentTimeStamp()
+	{
+		return new SimpleDateFormat("HH:mm:ss").format(new Date());
 	}
-	
+
 	public static void main(String[] args)
 	{
 		@SuppressWarnings("unused")

@@ -9,5 +9,5 @@ To run the client, simple execute the `chat-client` file located in the root dir
 Configure the IP and port address of the server before executing the runnable jar file `/dist/chat-server.jar`.
 
 ## Screenshots
-<img src="https://imgur.com/cKy7nQs">
-<img src="https://imgur.com/GlYgPY3">
+<img src="https://i.imgur.com/cKy7nQs.png">
+<img src="https://i.imgur.com/GlYgPY3.png">

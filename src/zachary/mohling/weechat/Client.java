@@ -7,9 +7,11 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.NoSuchElementException;
+import java.util.Date;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 public class Client
 {
@@ -33,14 +35,14 @@ public class Client
 	Client()
 	{
 
+		for (int i = 0; i < CONSOLE_LINES - 1; i++)
+			System.out.println();
+
 		println("  _______ _____ ______    _______   _________  ________");
 		println(" / ___/ // / _ /_  __/___/ ___/ /  /  _/ __/ |/ /_  __/");
 		println("/ /__/ _  / __ |/ / /___/ /__/ /___/ // _//    / / /   ");
 		println("\\___/_//_/_/ |_/_/      \\___/____/___/___/_/|_/ /_/    ");
 		println("");
-
-		for (int i = HEADER_LINES; i < CONSOLE_LINES - 1; i++)
-			System.out.println();
 
 		servers.add("weechat");
 
@@ -73,29 +75,26 @@ public class Client
 				if (message.length() > 0)
 				{
 					if (name == null)
+					{
 						name = message;
-					
-					out.println(message);
-					out.flush();
-
-					message = "[" + this.name + "]: " + message;
+						
+						out.println(message);
+						out.flush();
+						
+						message = "    > Welcome, " + name + "! <    ";
+					} else 
+					{
+						out.println(message);
+						out.flush();
+					}
 				} else
 				{
 					message = "Error: Cannot send empty messages.";
 				}
 
 				System.out.print(String.format("\033[%dA", 1)); // Move up
-				System.out.print("\r\033[2K"); // Erase line content
-				System.out.print(
-						ConsoleColors.RESET + ("\033[" + (10) + "C") + message
-								+ new String(new char[CONSOLE_COLS - message.length() - margin + 1]).replace("\0", " ")
-				);
-				System.out.print(
-						ConsoleColors.RESET + "\n" + ConsoleColors.CYAN_BACKGROUND + ConsoleColors.WHITE_BOLD
-								+ ("\033[" + (10) + "C") + "> " + "\033[s"
-								+ new String(new char[CONSOLE_COLS - 2 - margin]).replace("\0", " ") + "\033[u"
-				);
-				update();
+
+				pushToFeed(message);
 			}
 
 		} catch (IOException e)
@@ -114,18 +113,23 @@ public class Client
 			break;
 
 		case "print":
-			System.out.print("\r\033[2K"); // Erase line content
-			System.out.print(
-					ConsoleColors.RESET + ("\033[" + (10) + "C") + s
-							+ new String(new char[CONSOLE_COLS - s.length() - margin + 1]).replace("\0", " ")
-			);
-			System.out.print(
-					ConsoleColors.RESET
-							+ "\n" + ConsoleColors.CYAN_BACKGROUND + ConsoleColors.WHITE_BOLD + ("\033[" + (10)
-									+ "C")
-							+ "> " + "\033[s" + new String(new char[CONSOLE_COLS - 2 - margin]).replace("\0", " ") + "\033[u"
-			);
-			update();
+			pushToFeed(s);
+			break;
+
+		case "quit":
+			System.out.print(String.format("\033[%dA", 1)); // Move up
+			pushToFeed("Disconnecting from the server...");
+
+			try
+			{
+				TimeUnit.SECONDS.sleep(0);
+			} catch (InterruptedException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			System.exit(0);
 			break;
 
 		default:
@@ -156,6 +160,28 @@ public class Client
 		System.out.print(ConsoleColors.CYAN_BACKGROUND);
 	}
 
+	private void pushToFeed(String message)
+	{        
+        message = getCurrentTimeStamp() + " | " + message;
+        
+		System.out.print("\r\033[2K"); // Erase line content
+		System.out.print(
+				ConsoleColors.RESET + ("\033[" + (10) + "C") + message
+						+ new String(new char[CONSOLE_COLS - message.length() - margin + 1]).replace("\0", " ")
+		);
+		System.out.print(
+				ConsoleColors.RESET
+						+ "\n" + ConsoleColors.CYAN_BACKGROUND + ConsoleColors.WHITE_BOLD + ("\033[" + (10)
+								+ "C")
+						+ "> " + "\033[s" + new String(new char[CONSOLE_COLS - 2 - margin]).replace("\0", " ") + "\033[u"
+		);
+		update();
+	}
+	
+	public String getCurrentTimeStamp() {
+	    return new SimpleDateFormat("HH:mm:ss").format(new Date());
+	}
+	
 	public static void main(String[] args)
 	{
 		@SuppressWarnings("unused")
@@ -190,10 +216,9 @@ class ServerListener implements Runnable
 				String cmd = in.next();
 				String s = in.nextLine();
 				lc.handleMessage(cmd, s.substring(1));
-			} catch (NoSuchElementException e)
+			} catch (Exception e)
 			{
-				System.out.println(ConsoleColors.RESET + "Disconnected from server");
-				System.exit(0);
+				e.printStackTrace();
 				break;
 			}
 

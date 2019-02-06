@@ -6,8 +6,8 @@ eval `resize`
 export LINES
 export COLUMNS
 
-#tput smcup;
+tput smcup;
 
 java -jar ./dist/chat-client.jar
 
-#tput rmcup;
+tput rmcup;

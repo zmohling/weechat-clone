@@ -83,11 +83,13 @@ class ClientHandler implements Runnable {
 					switch(cmd)
 					{
 						case "q":
+							out.println("quit now");
+							out.flush();
+							
 							this.socket.close();
+							
 							s = "    > " + name + " has left the session! <    ";
-							
 							Server.clients.remove(this);
-							
 							System.out.println("Closed connection to: client " + identifier);
 							break;
 							

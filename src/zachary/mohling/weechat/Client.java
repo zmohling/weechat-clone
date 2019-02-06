@@ -28,7 +28,6 @@ public class Client
 	PrintStream out;
 	BufferedReader consoleInput;
 
-	int HEADER_LINES = 5;
 	int CONSOLE_LINES = Integer.parseInt(System.getenv("LINES"));
 	int CONSOLE_COLS = Integer.parseInt(System.getenv("COLUMNS"));
 

@@ -1,0 +1,5 @@
+1. Add server by IP and port in client.
+2. Switch servers with keybind
+3. Massive refactoring. (lots of ugly code)
+4. More commands
+5. Improve connect/disconnect logic

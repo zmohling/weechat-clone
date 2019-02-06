@@ -32,7 +32,7 @@ public class Client
 	int CONSOLE_COLS = Integer.parseInt(System.getenv("COLUMNS"));
 
 	Client()
-	{
+	{ 
 		servers.add("example.com");
 		servers.add("foo.org");
 		servers.add("bar.biz");
@@ -47,7 +47,7 @@ public class Client
 			System.out.println();
 		}
 
-		println(getCurrentTimeStamp() + " | " + "\t              (C) 2018 Zachary Mohling");
+		println(getCurrentTimeStamp() + " | " + "\t              (C) 2019 Zachary Mohling");
 		println(getCurrentTimeStamp() + " | " + "\t  _______ _____ ______    _______   _________  ________");
 		println(getCurrentTimeStamp() + " | " + "\t / ___/ // / _ /_  __/___/ ___/ /  /  _/ __/ |/ /_  __/");
 		println(getCurrentTimeStamp() + " | " + "\t/ /__/ _  / __ |/ / /___/ /__/ /___/ // _//    / / /   ");

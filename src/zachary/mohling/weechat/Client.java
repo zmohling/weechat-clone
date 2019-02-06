@@ -7,35 +7,52 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-public class Client {
+public class Client
+{
 
 	Socket serverSocket;
 	String serverHostname = "linux.beck.ai";
 	int serverPortNumber = 4400;
 	ServerListener sl;
 	String name = null;
-	
+
+	ArrayList<String> servers = new ArrayList<String>();
+	int margin = 11;
+
 	PrintStream out;
 	BufferedReader consoleInput;
-	
+
 	int HEADER_LINES = 5;
 	int CONSOLE_LINES = Integer.parseInt(System.getenv("LINES"));
 	int CONSOLE_COLS = Integer.parseInt(System.getenv("COLUMNS"));
 
-	Client() {
-		
+	Client()
+	{
+
+		println("  _______ _____ ______    _______   _________  ________");
+		println(" / ___/ // / _ /_  __/___/ ___/ /  /  _/ __/ |/ /_  __/");
+		println("/ /__/ _  / __ |/ / /___/ /__/ /___/ // _//    / / /   ");
+		println("\\___/_//_/_/ |_/_/      \\___/____/___/___/_/|_/ /_/    ");
+		println("");
+
 		for (int i = HEADER_LINES; i < CONSOLE_LINES - 1; i++)
 			System.out.println();
-		
+
+		servers.add("weechat");
+
 		// Connect to the server
-		try {
+		try
+		{
 			serverSocket = new Socket(serverHostname, serverPortNumber);
-		} catch (UnknownHostException e) {
+		} catch (UnknownHostException e)
+		{
 			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (IOException e)
+		{
 			e.printStackTrace();
 		}
 
@@ -43,50 +60,54 @@ public class Client {
 		sl = new ServerListener(this, serverSocket);
 		new Thread(sl).start();
 
-		try {
+		try
+		{
 			out = new PrintStream(serverSocket.getOutputStream());
 			consoleInput = new BufferedReader(new InputStreamReader(System.in));
-			
+
 			// Input listener
-			while (true) {
+			while (true)
+			{
 				String message = consoleInput.readLine().trim();
 
-				if (name == null) {
-					name = message;
-					System.out.print("    > Welcome, " + name + "! <    ");
-					System.out.print("\n" + ConsoleColors.CYAN_BACKGROUND + ConsoleColors.WHITE_BOLD + "> " + "\033[s" + new String(new char[CONSOLE_COLS - 2]).replace("\0", " ") + "\033[u");
+				if (message.length() > 0)
+				{
+					if (name == null)
+						name = message;
 					
 					out.println(message);
 					out.flush();
 
-				} else {
-					if (message.length() > 0) {
-						out.println(message);
-						out.flush();
-						
-						message = "[" + this.name + "]: " + message;
-					} else {
-						message = "Error: Cannot send empty messages.";
-					}
-					
-					System.out.print(String.format("\033[%dA", 1)); // Move up
-					System.out.print("\r\033[2K"); // Erase line content
-					System.out.print(ConsoleColors.RESET + message + new String(new char[CONSOLE_COLS - message.length()]).replace("\0", " "));
-					System.out.print("\n" + ConsoleColors.CYAN_BACKGROUND + ConsoleColors.WHITE_BOLD + "> " + "\033[s" + new String(new char[CONSOLE_COLS - 2]).replace("\0", " ") + "\033[u");
+					message = "[" + this.name + "]: " + message;
+				} else
+				{
+					message = "Error: Cannot send empty messages.";
 				}
-				
-				if (message.length() > 0) {
 
-				}
+				System.out.print(String.format("\033[%dA", 1)); // Move up
+				System.out.print("\r\033[2K"); // Erase line content
+				System.out.print(
+						ConsoleColors.RESET + ("\033[" + (10) + "C") + message
+								+ new String(new char[CONSOLE_COLS - message.length() - margin + 1]).replace("\0", " ")
+				);
+				System.out.print(
+						ConsoleColors.RESET + "\n" + ConsoleColors.CYAN_BACKGROUND + ConsoleColors.WHITE_BOLD
+								+ ("\033[" + (10) + "C") + "> " + "\033[s"
+								+ new String(new char[CONSOLE_COLS - 2 - margin]).replace("\0", " ") + "\033[u"
+				);
+				update();
 			}
 
-		} catch (IOException e) {
+		} catch (IOException e)
+		{
 			e.printStackTrace();
 		}
 	}
 
-	public void handleMessage(String cmd, String s) {
-		switch (cmd) {
+	public void handleMessage(String cmd, String s)
+	{
+		switch (cmd)
+		{
 
 		case "welcome":
 			System.out.print(s);
@@ -94,8 +115,17 @@ public class Client {
 
 		case "print":
 			System.out.print("\r\033[2K"); // Erase line content
-			System.out.print(ConsoleColors.RESET + s + new String(new char[CONSOLE_COLS - s.length()]).replace("\0", " "));
-			System.out.print("\n" + ConsoleColors.CYAN_BACKGROUND + ConsoleColors.WHITE_BOLD + "> " + "\033[s" + new String(new char[CONSOLE_COLS - 2]).replace("\0", " ") + "\033[u");
+			System.out.print(
+					ConsoleColors.RESET + ("\033[" + (10) + "C") + s
+							+ new String(new char[CONSOLE_COLS - s.length() - margin + 1]).replace("\0", " ")
+			);
+			System.out.print(
+					ConsoleColors.RESET
+							+ "\n" + ConsoleColors.CYAN_BACKGROUND + ConsoleColors.WHITE_BOLD + ("\033[" + (10)
+									+ "C")
+							+ "> " + "\033[s" + new String(new char[CONSOLE_COLS - 2 - margin]).replace("\0", " ") + "\033[u"
+			);
+			update();
 			break;
 
 		default:
@@ -103,42 +133,65 @@ public class Client {
 			break;
 		}
 	}
-	
-	public void print(String message)
+
+	private void println(String message)
 	{
-		System.out.print(String.format("\033[%dA", 1)); // Move up
-		System.out.print("\r\033[2K"); // Erase line content
-		System.out.print(ConsoleColors.RESET + message + new String(new char[CONSOLE_COLS - message.length()]).replace("\0", " "));
-		System.out.print("\n" + ConsoleColors.CYAN_BACKGROUND + ConsoleColors.WHITE_BOLD + "> " + "\033[s" + new String(new char[CONSOLE_COLS - 2]).replace("\0", " ") + "\033[u");
+		System.out.print("\033[" + margin + "C" + message + "\n");
 	}
 
-	public static void main(String[] args) {
+	private void update()
+	{
+		System.out.print("\033[s" + ConsoleColors.RESET + "\033[H");
+
+		for (int i = 0; i < CONSOLE_LINES; i++)
+		{
+			System.out.print(new String(new char[servers.get(0).length() + 2]).replace("\0", " ") + "│");
+
+			if (i != CONSOLE_LINES - 1)
+				System.out.print("\n");
+
+		}
+
+		System.out.print("\033[u");
+		System.out.print(ConsoleColors.CYAN_BACKGROUND);
+	}
+
+	public static void main(String[] args)
+	{
 		@SuppressWarnings("unused")
 		Client lc = new Client();
 	}
 }
 
-class ServerListener implements Runnable {
+class ServerListener implements Runnable
+{
 	Client lc;
 	Scanner in;
 
-	ServerListener(Client lc, Socket s) {
-		try {
+	ServerListener(Client lc, Socket s)
+	{
+		try
+		{
 			this.lc = lc;
 			in = new Scanner(new BufferedInputStream(s.getInputStream()));
-		} catch (IOException e) {
+		} catch (IOException e)
+		{
 			e.printStackTrace();
 		}
 	}
 
 	@Override
-	public void run() {
-		while (true) {
-			try {
+	public void run()
+	{
+		while (true)
+		{
+			try
+			{
 				String cmd = in.next();
 				String s = in.nextLine();
 				lc.handleMessage(cmd, s.substring(1));
-			} catch (NoSuchElementException e) {
+			} catch (NoSuchElementException e)
+			{
 				System.out.println(ConsoleColors.RESET + "Disconnected from server");
 				System.exit(0);
 				break;

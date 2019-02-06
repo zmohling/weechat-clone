@@ -115,13 +115,15 @@ class ClientHandler implements Runnable {
 	
 	// Confirmation prompt for name
 	private void joinSession(Scanner in, PrintWriter out) {
-		out.println("welcome > Enter your name: ");
+		out.println("print > Enter your name: ");
 		out.flush();
 		name = in.nextLine().trim();
 
 		for (ClientHandler c : Server.clients) {
 			if (c.identifier == this.identifier)
-				continue;
+			{
+				c.dispatch("    > Welcome, " + name + "! <    ");
+			}
 
 			c.dispatch("    > " + name + " has joined the session! <    ");
 		}

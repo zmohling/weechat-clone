@@ -1,12 +1,13 @@
 #!/bin/bash
 
 clear
-export LINES COLUMNS
 
-echo "  _______ _____ ______    _______   _________  ________";
-echo " / ___/ // / _ /_  __/___/ ___/ /  /  _/ __/ |/ /_  __/";
-echo "/ /__/ _  / __ |/ / /___/ /__/ /___/ // _//    / / /   ";
-echo "\___/_//_/_/ |_/_/      \___/____/___/___/_/|_/ /_/    ";
-echo "                                                       ";
+eval `resize`
+export LINES
+export COLUMNS
+
+#tput smcup;
 
 java -jar ./dist/chat-client.jar
+
+#tput rmcup;

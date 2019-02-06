@@ -1,4 +1,4 @@
-package hw1;
+package zachary.mohling.weechat;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -17,13 +17,17 @@ public class Client {
 	int serverPortNumber = 4400;
 	ServerListener sl;
 	String name = null;
+	
+	PrintStream out;
+	BufferedReader consoleInput;
+	
+	int HEADER_LINES = 5;
+	int CONSOLE_LINES = Integer.parseInt(System.getenv("LINES"));
+	int CONSOLE_COLS = Integer.parseInt(System.getenv("COLUMNS"));
 
 	Client() {
 		
-		int HEADER_LINES = 5;
-		int CONSOLE_LINES = Integer.parseInt(System.getenv("LINES"));
-		
-		for (int i = HEADER_LINES; i <= CONSOLE_LINES; i++)
+		for (int i = HEADER_LINES; i < CONSOLE_LINES - 1; i++)
 			System.out.println();
 		
 		// Connect to the server
@@ -39,8 +43,6 @@ public class Client {
 		sl = new ServerListener(this, serverSocket);
 		new Thread(sl).start();
 
-		PrintStream out = null;
-		BufferedReader consoleInput = null;
 		try {
 			out = new PrintStream(serverSocket.getOutputStream());
 			consoleInput = new BufferedReader(new InputStreamReader(System.in));
@@ -52,18 +54,29 @@ public class Client {
 				if (name == null) {
 					name = message;
 					System.out.print("    > Welcome, " + name + "! <    ");
-					System.out.print("\n" + ConsoleColors.WHITE_BOLD + "> " + ConsoleColors.RESET);
+					System.out.print("\n" + ConsoleColors.CYAN_BACKGROUND + ConsoleColors.WHITE_BOLD + "> " + "\033[s" + new String(new char[CONSOLE_COLS - 2]).replace("\0", " ") + "\033[u");
+					
+					out.println(message);
+					out.flush();
 
 				} else {
+					if (message.length() > 0) {
+						out.println(message);
+						out.flush();
+						
+						message = "[" + this.name + "]: " + message;
+					} else {
+						message = "Error: Cannot send empty messages.";
+					}
+					
 					System.out.print(String.format("\033[%dA", 1)); // Move up
 					System.out.print("\r\033[2K"); // Erase line content
-					System.out.print("[" + this.name + "]: " + message);
-					System.out.print("\n" + ConsoleColors.WHITE_BOLD + "> " + ConsoleColors.RESET);
+					System.out.print(ConsoleColors.RESET + message + new String(new char[CONSOLE_COLS - message.length()]).replace("\0", " "));
+					System.out.print("\n" + ConsoleColors.CYAN_BACKGROUND + ConsoleColors.WHITE_BOLD + "> " + "\033[s" + new String(new char[CONSOLE_COLS - 2]).replace("\0", " ") + "\033[u");
 				}
 				
 				if (message.length() > 0) {
-					out.println(message);
-					out.flush();
+
 				}
 			}
 
@@ -81,14 +94,22 @@ public class Client {
 
 		case "print":
 			System.out.print("\r\033[2K"); // Erase line content
-			System.out.print(s);
-			System.out.print("\n" + ConsoleColors.WHITE_BOLD + "> " + ConsoleColors.RESET);
+			System.out.print(ConsoleColors.RESET + s + new String(new char[CONSOLE_COLS - s.length()]).replace("\0", " "));
+			System.out.print("\n" + ConsoleColors.CYAN_BACKGROUND + ConsoleColors.WHITE_BOLD + "> " + "\033[s" + new String(new char[CONSOLE_COLS - 2]).replace("\0", " ") + "\033[u");
 			break;
 
 		default:
 			System.out.println("Unknown command received:" + cmd);
 			break;
 		}
+	}
+	
+	public void print(String message)
+	{
+		System.out.print(String.format("\033[%dA", 1)); // Move up
+		System.out.print("\r\033[2K"); // Erase line content
+		System.out.print(ConsoleColors.RESET + message + new String(new char[CONSOLE_COLS - message.length()]).replace("\0", " "));
+		System.out.print("\n" + ConsoleColors.CYAN_BACKGROUND + ConsoleColors.WHITE_BOLD + "> " + "\033[s" + new String(new char[CONSOLE_COLS - 2]).replace("\0", " ") + "\033[u");
 	}
 
 	public static void main(String[] args) {
@@ -118,7 +139,7 @@ class ServerListener implements Runnable {
 				String s = in.nextLine();
 				lc.handleMessage(cmd, s.substring(1));
 			} catch (NoSuchElementException e) {
-				System.out.println("Disconnected from server");
+				System.out.println(ConsoleColors.RESET + "Disconnected from server");
 				System.exit(0);
 				break;
 			}

@@ -1,4 +1,4 @@
-package hw1;
+package zachary.mohling.weechat;
 
 public class ConsoleColors {
     // Reset

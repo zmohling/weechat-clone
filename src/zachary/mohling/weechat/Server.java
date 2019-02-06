@@ -1,4 +1,4 @@
-package hw1;
+package zachary.mohling.weechat;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

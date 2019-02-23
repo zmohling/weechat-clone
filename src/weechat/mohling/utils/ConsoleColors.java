@@ -1,4 +1,4 @@
-package zachary.mohling.weechat;
+package weechat.mohling.utils;
 
 public class ConsoleColors {
     // Reset

@@ -5,19 +5,27 @@ echo
 validateDep=1
 # Ant dependency check
 if ! which ant &>/dev/null; then
-    printf "\tMissing dependency: Ant Java Build Tool\n"
+    printf "\tMissing dependency: Ant - Java based build tool\n"
+    let validateDep=0
 fi
 # Ivy dependency check
-if ! which java &>/dev/null; then
-    printf "\tMissing dependency: Ant Java Build Tool\n"
+if ! which ivy &>/dev/null; then
+    printf "\tMissing dependency: Ivy - Agile dependency manager\n"
+    let validateDep=0
 fi
 # Java dependency check
-if ! which ant &>/dev/null; then
-    printf "\tMissing dependency: Ant Java Build Tool\n"
+if ! which java &>/dev/null; then
+    printf "\tMissing dependency: Java\n"
+    let validateDep=0
 fi
-# tput dependency check
-if ! which ant &>/dev/null; then
-    printf "\tMissing dependency: Ant Java Build Tool\n"
+
+if [ $validateDep -ne 1 ]; then
+
+    echo
+    printf "\tExiting...\n";
+    echo
+
+    exit 1;
 fi
 
 # Build client with ant if not already built
@@ -34,6 +42,6 @@ export COLUMNS
 
 tput smcup;
 
-java -jar ./dist/chat-client.jar
+java -jar bin/jar/client.jar
 
 tput rmcup;

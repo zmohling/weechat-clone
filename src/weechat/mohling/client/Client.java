@@ -1,4 +1,4 @@
-package zachary.mohling.weechat;
+package weechat.mohling.client;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
+
+import weechat.mohling.utils.*;
 
 public class Client
 {

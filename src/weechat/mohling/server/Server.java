@@ -1,4 +1,4 @@
-package zachary.mohling.weechat;
+package weechat.mohling.server;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -8,6 +8,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
 import java.util.Scanner;
+
+import weechat.mohling.utils.*;
+
 import java.util.ArrayList;
 
 public class Server {
@@ -24,6 +27,7 @@ public class Server {
 			serverSocket = new ServerSocket(4400);
 			System.out.println(serverSocket);
 		} catch (IOException e) {
+			System.out.println(e);
 			System.out.println("Could not listen on port: 4400");
 			System.exit(-1);
 		}

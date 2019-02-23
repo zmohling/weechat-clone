@@ -1,9 +1,10 @@
-<project name="weechat-clone" basedir="." default="jar">
+<project name="weechat-clone" basedir="." default="build">
     <property name="source.dir"     value="src"/>
     <property name="lib.dir"        value="lib"/>
     <property name="class.dir"      value="bin"/>
-    <property name="jar.dir"        value="dist"/>
-    <property name="main-class"     value="zachary.mohling.weechat.Client"/>
+    <property name="jar.dir"        value="bin/jar"/>
+    <property name="client.path"     value="weechat.mohling.client.Client"/>
+    <property name="server.path"     value="weechat.mohling.server.Server"/>
  
     <path id="libraries.path">   
         <fileset dir="${lib.dir}">
@@ -11,7 +12,7 @@
         </fileset>
     </path>
  
-    <target name="clean" description="delete old files">
+    <target name="clean" description="clean generated files">
         <delete dir="${class.dir}"/>
         <delete dir="${jar.dir}"/>
     </target>
@@ -27,27 +28,30 @@
         <classpath refid="libraries.path"/>
     </manifestclasspath>
  
-    <target name="jar" depends="compile">
+    <target name="build" depends="compile">
         <mkdir dir="${jar.dir}"/>
         <mkdir dir="${jar.dir}/${lib.dir}"/>
         <copy todir="${jar.dir}/${lib.dir}" flatten="true">
             <path refid="libraries.path"/>
         </copy>
-        <jar destfile="dist/chat-client.jar" basedir="${class.dir}">
+
+        <jar destfile="${jar.dir}/client.jar" basedir="${class.dir}">
             <manifest>
-                <attribute name="Main-Class" value="${main-class}"/>
+                <attribute name="Main-Class" value="${client.path}"/>
                 <attribute name="Class-Path" value="${manifest.classpath}"/>
             </manifest>
         </jar> 
-        <jar destfile="dist/chat-server.jar" basedir="${class.dir}">
+
+        <jar destfile="${jar.dir}/server.jar" basedir="${class.dir}">
             <manifest>
-                <attribute name="Main-Class" value="zachary.mohling.weechat.Server"/>
+                <attribute name="Main-Class" value="${server.path}"/>
                 <attribute name="Class-Path" value="${manifest.classpath}"/>
             </manifest>
         </jar> 
+
     </target>
  
-    <target name="run" depends="jar">
+    <target name="run" depends="build">
         <java jar="${jar.dir}/${ant.project.name}.jar" fork="true"/>
     </target>
 </project>

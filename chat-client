@@ -1,5 +1,31 @@
 #!/bin/bash
 
+echo
+
+validateDep=1
+# Ant dependency check
+if ! which ant &>/dev/null; then
+    printf "\tMissing dependency: Ant Java Build Tool\n"
+fi
+# Ivy dependency check
+if ! which java &>/dev/null; then
+    printf "\tMissing dependency: Ant Java Build Tool\n"
+fi
+# Java dependency check
+if ! which ant &>/dev/null; then
+    printf "\tMissing dependency: Ant Java Build Tool\n"
+fi
+# tput dependency check
+if ! which ant &>/dev/null; then
+    printf "\tMissing dependency: Ant Java Build Tool\n"
+fi
+
+# Build client with ant if not already built
+if [ ! -f ./bin/jar/client.jar ]; then
+    ant;
+    exit 2
+fi
+
 clear
 
 eval `resize`

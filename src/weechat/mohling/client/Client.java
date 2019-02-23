@@ -26,7 +26,7 @@ public class Client
 	int margin = 0;
 
 	PrintStream out;
-	BufferedReader consoleInput;
+	BufferedReader consoleInput; 
 
 	int CONSOLE_LINES = Integer.parseInt(System.getenv("LINES"));
 	int CONSOLE_COLS = Integer.parseInt(System.getenv("COLUMNS"));

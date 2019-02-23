@@ -1,10 +1,12 @@
 .project
 .settings
 .classpath
+.chat-server
 *target*
 *.war
 *.ear
 *.class
+*.jar
 
 *.pydevproject
 .project

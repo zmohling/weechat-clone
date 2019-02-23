@@ -1,14 +1,15 @@
 # WeeChat Clone
-An instant messaging group chat software. While not utilizing the internet chat relay protocol, this application is illustrative of the open source IRC client WeeChat. The project includes both the client and server software.
+This repository hosts a clone of the popular IRC client WeeChat. The client and server are written in Java, and are executed in X-based terminals. Unlike WeeChat, this software does not use the internet chat relay protocol. Client and server communication utilizes a persistent web socket. 
 
 ## Requirements
-This program was developed and solely tested in a Linux environment. It's likely that the client will only successfullly execute in a bash shell.
-## Dependencies
+Support for *nix based systems. Only tested in a Linux environment with X Window System terminals and bash. 
+
+##### Dependencies
 - Java
-- Ant
+- Ant w/ Ivy
+
 ## Execution
-To run the client, simple execute the `chat-client` file located in the root directory.
-Configure the IP and port address of the server before executing the runnable jar file `/dist/chat-server.jar`.
+To run the client, simple execute the `client` file located in the root project directory. Configure the IP and port address of the server before executing the runnable jar file `/bin/jar/server.jar`.
 
 ## Screenshots
 <img src="https://i.imgur.com/cKy7nQs.png">
